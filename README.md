@@ -1,2 +1,2 @@
 # NuShell
-Everything about nushell (configs, scripts etc.)
+My nushell configs, scripts etc.
