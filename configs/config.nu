@@ -24,8 +24,11 @@ $env.config.buffer_editor = "code" # Can be anything for ex. (nvim, nano, ...)
 $env.config.show_banner = false
 
 # Add go path
-let go_usr_path = $"/home/($env.USER)/go/bin"
-$env.PATH ++= [$go_usr_path]
+if (($env.PATH | to text | str contains "/go/bin") == false) {
+    let go_usr_path = $"/home/($env.USER)/go/bin"
+    $env.PATH ++= [$go_usr_path]
+    $env.PATH ++= ["/usr/local/go/bin"]
+}
 
 def left_prompt [] {
     # Function to get the username
@@ -42,10 +45,6 @@ def left_prompt [] {
 # Apply the custom prompt
 $env.PROMPT_COMMAND = { left_prompt }
 $env.PROMPT_INDICATOR = $"(ansi blue_bold)>> "
-
-# Use NUPM
-let nupm_path = $"/home/($env.USER)/nupm/nupm"
-use $nupm_path
 
 # Gather information about the target IP address
 def checkip [ipaddr: string] {
@@ -139,4 +138,20 @@ def tfox [dtype: string] {
 # Perform httpx scan against list of urls
 def hx [listfile: string] {
     httpx -l $listfile -silent -td -title -sc
+}
+
+# Projectdiscovery tool downloader
+def pdsc [tool_name: string] {
+    print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Installing: (ansi green_bold)($tool_name)"
+    go install -v github.com/projectdiscovery/($tool_name)/cmd/($tool_name)@latest
+}
+
+# Get user defined commands/aliases
+def hlp [] {
+    help commands | where category =~ "default" | select name description params
+}
+
+# Enumerate subdomains using subfinder/httpx combination
+def shx [target_domain: string] {
+    subfinder -silent -d $target_domain | httpx -silent -mc 200 -sc -title -td
 }
