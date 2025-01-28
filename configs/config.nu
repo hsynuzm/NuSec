@@ -119,7 +119,7 @@ def haus [datatype: string] {
 }
 
 # Fetch data from ThreatFox
-def tfox [dtype: string] {
+def tfox [--dtype: string] {
     let buffer = http get https://threatfox.abuse.ch/export/json/urls/recent/ | values
     if $dtype == "all" {
         for data in ($buffer) {
@@ -130,14 +130,17 @@ def tfox [dtype: string] {
             print $"($data | get 0 | get ioc_value | to text)"
         }
     } else {
-        "You must use: all/url"
+        "You must use: --dtype all/url"
     }
 }
 
-# You have to execute => "go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest"
 # Perform httpx scan against list of urls
 def hx [listfile: string] {
-    httpx -l $listfile -silent -td -title -sc
+    if (($"/home/($env.USER)/go/bin/httpx" | path exists) == false) {
+        go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
+    } else {
+        httpx -l $listfile -silent -td -title -sc
+    }
 }
 
 # Projectdiscovery tool downloader
@@ -147,11 +150,29 @@ def pdsc [tool_name: string] {
 }
 
 # Get user defined commands/aliases
-def hlp [] {
-    help commands | where category =~ "default" | select name description params
+def hlp [--verbose (-v)] {
+    if ($verbose) {
+        help commands | where category =~ "default" | select name description params
+    } else {
+        help commands | where category =~ "default" | select name description
+    }    
 }
 
 # Enumerate subdomains using subfinder/httpx combination
 def shx [target_domain: string] {
     subfinder -silent -d $target_domain | httpx -silent -mc 200 -sc -title -td
+}
+
+# Base64 decoder
+def bdc [pattern: string] {
+    echo $pattern | base64 -d
+}
+
+# Hunt possible C2 domains usng hednsextractor
+def hdns [target_domain: string] {
+    if (($"/home/($env.USER)/go/bin/hednsextractor" | path exists) == false) {
+        go install -v github.com/HuntDownProject/hednsextractor/cmd/hednsextractor@latest
+    } else {
+        echo $target_domain | hednsextractor -silent -only-domains
+    }
 }
