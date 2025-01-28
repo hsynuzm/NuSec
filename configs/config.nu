@@ -48,7 +48,7 @@ $env.PROMPT_INDICATOR = $"(ansi blue_bold)>> "
 
 # Gather information about the target IP address
 def checkip [ipaddr: string] {
-    curl -s $"http://ipinfo.io/($ipaddr)" | jq
+    http get http://ipinfo.io/($ipaddr)/json
 }
 
 # Start HTTPSERVER
