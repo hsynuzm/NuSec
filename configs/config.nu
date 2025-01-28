@@ -52,7 +52,14 @@ def checkip [ipaddr: string] {
 }
 
 # Start HTTPSERVER
-alias hs = python3 -m http.server
+def hs [--path: string] {
+    let abs_path = ($path | str trim)
+    if $path != null {
+        python3 -m http.server -d $abs_path
+    } else {
+        python3 -m http.server 
+    }
+}
 
 # Output with syntax highlighting
 def catt [targetfile: string] {
