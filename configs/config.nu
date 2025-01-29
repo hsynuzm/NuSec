@@ -183,3 +183,11 @@ def hdns [target_domain: string] {
         echo $target_domain | hednsextractor -silent -only-domains
     }
 }
+
+#System Cleaner
+def clean [] {
+    sudo apt autoremove -y
+    sudo apt autoclean -y
+    sudo rm -rf ~/.cache/*
+    echo "System Cleaned!"
+}
