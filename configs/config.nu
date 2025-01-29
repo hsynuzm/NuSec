@@ -30,6 +30,7 @@ if (($env.PATH | to text | str contains "/go/bin") == false) {
     $env.PATH ++= ["/usr/local/go/bin"]
 }
 
+# Skeleton of the prompt
 def left_prompt [] {
     # Function to get the username
     let username = (whoami | str trim)
@@ -175,7 +176,7 @@ def bdc [pattern: string] {
     echo $pattern | base64 -d
 }
 
-# Hunt possible C2 domains usng hednsextractor
+# Hunt possible C2 domains using hednsextractor
 def hdns [target_domain: string] {
     if (($"/home/($env.USER)/go/bin/hednsextractor" | path exists) == false) {
         go install -v github.com/HuntDownProject/hednsextractor/cmd/hednsextractor@latest
