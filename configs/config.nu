@@ -217,6 +217,22 @@ def ff [target_file: string] {
         fdfind -H --glob -t f $target_file / | lines
     } else {
         print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi red_bold) fd-find not found installing it automatically!(ansi reset)"
-        sudo apt install fd-find
+        aget fd-find
     }
+}
+
+# List active and passive services
+def serv [] {
+    let servc = (service --status-all | lines | split column " ")
+    mut ser_inf_arr = []
+    for ser in $servc {
+        let serv_name = ($ser | get column6 | str trim)
+        let status = if ($ser | get column3 | str trim | str contains "+") {
+            $"(ansi green_bold)active(ansi reset)"
+        } else {
+            $"(ansi red_bold)passive(ansi reset)"
+        }
+        $ser_inf_arr ++= [{service_name: $serv_name, status: $status}]
+    }
+    $ser_inf_arr
 }
