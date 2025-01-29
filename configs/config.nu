@@ -203,3 +203,8 @@ def clean [] {
 def arpt [] {
     arp -a | lines | split column " " | select column2 column4 column5 column7 | rename IP_Address MAC_Address Proto Interface
 }
+
+# Search for target file in the system
+def ff [target_file: string] {
+    fd --glob -t f $target_file / | lines
+}
