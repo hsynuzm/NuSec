@@ -129,14 +129,24 @@ def haus [datatype: string] {
 # Fetch data from ThreatFox
 def tfox [--dtype: string] {
     let buffer = http get https://threatfox.abuse.ch/export/json/urls/recent/ | values
+    mut data_array = []
     if $dtype == "all" {
         for data in ($buffer) {
-            print $"(ansi blue_bold)($data.ioc_value)(ansi white) | ($data.threat_type) | (ansi purple_bold)($data.malware)(ansi white) | ($data.malware_printable) | (ansi green_bold)($data.tags)(ansi white) | ($data.reference)"
+            $data_array ++= [{
+                "ioc": $data.ioc_value.0, 
+                "threat_type": $data.threat_type.0, 
+                "malware": $data.malware.0, 
+                "malware_printable": $data.malware_printable.0, 
+                "tags": $data.tags, 
+                "reference": $data.reference
+            }]
         }
+        $data_array | table
     } else if $dtype == "url" {
         for data in ($buffer) {
-            print $"($data | get 0 | get ioc_value | to text)"
+            $data_array ++= [($data | get 0 | get ioc_value | to text)]
         }
+        $data_array
     } else {
         "You must use: --dtype all/url"
     }
