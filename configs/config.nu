@@ -198,3 +198,8 @@ def clean [] {
     sudo rm -rf ~/.cache/*
     echo "System Cleaned!"
 }
+
+# Get ARP table with style!
+def arpt [] {
+    arp -a | lines | split column " " | select column2 column4 column5 column7 | rename IP_Address MAC_Address Proto Interface
+}
