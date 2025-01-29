@@ -184,6 +184,13 @@ def hdns [target_domain: string] {
     }
 }
 
+# Get latest config.nu from repository
+def upc [] {
+    http get https://raw.githubusercontent.com/CYB3RMX/NuShell/refs/heads/main/configs/config.nu | save -f $nu.config-path
+    print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Config updated successfully!"
+    nu # Restart shell
+}
+
 #System Cleaner
 def clean [] {
     sudo apt autoremove -y
