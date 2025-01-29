@@ -207,5 +207,11 @@ def arpt [] {
 
 # Search for target file in the system
 def ff [target_file: string] {
-    fd -H --glob -t f $target_file / | lines
+    let command_state = (which fdfind)
+    if ($command_state | to text | str contains "/usr/bin/fdfind") {
+        fdfind -H --glob -t f $target_file / | lines
+    } else {
+        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi red_bold) fd-find not found installing it automatically!(ansi reset)"
+        sudo apt install fd-find
+    }
 }
