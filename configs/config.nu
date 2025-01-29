@@ -207,5 +207,5 @@ def arpt [] {
 
 # Search for target file in the system
 def ff [target_file: string] {
-    fd --glob -t f $target_file / | lines
+    fd -H --glob -t f $target_file / | lines
 }
