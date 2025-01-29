@@ -194,10 +194,15 @@ def upc [] {
 
 #System Cleaner
 def clean [] {
-    sudo apt autoremove -y
-    sudo apt autoclean -y
-    sudo rm -rf ~/.cache/*
-    echo "System Cleaned!"
+    let confirm = (input $"(ansi red_bold)System cache will be cleaned. Are you sure? [Y/n]: (ansi reset)" | str trim | str downcase)
+    if $confirm == "y" or $confirm == "" {
+        sudo apt autoremove -y
+        sudo apt autoclean -y
+        sudo rm -rf ~/.cache/*
+        echo "System Cleaned!"
+    } else {
+        echo "Operation cancelled."
+    }
 }
 
 # Get ARP table with style!
