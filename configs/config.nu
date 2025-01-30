@@ -231,18 +231,18 @@ def ff [target_file: string] {
     }
 }
 
-# List active and passive services
+# List active and inactive services
 def serv [] {
-    let servc = (service --status-all | lines | split column " ")
-    mut ser_inf_arr = []
-    for ser in $servc {
-        let serv_name = ($ser | get column6 | str trim)
-        let status = if ($ser | get column3 | str trim | str contains "+") {
-            $"(ansi green_bold)active(ansi reset)"
+    let services = (ls /etc/init.d/ | get name) 
+    $services | each { |serv_path|
+        let serv_name = ($serv_path | path basename | str trim)
+        let status_output = (try { systemctl is-active $serv_name } catch { 'unknown' })
+        if ($status_output == "active") {
+            let status = $"(ansi green_bold)active(ansi reset)"
+            { service: $serv_name, status: $status }
         } else {
-            $"(ansi red_bold)passive(ansi reset)"
+            let status = $"(ansi red_bold)inactive(ansi reset)"
+            { service: $serv_name, status: $status }
         }
-        $ser_inf_arr ++= [{service_name: $serv_name, status: $status}]
     }
-    $ser_inf_arr
 }
