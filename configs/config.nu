@@ -129,14 +129,24 @@ def haus [datatype: string] {
 # Fetch data from ThreatFox
 def tfox [--dtype: string] {
     let buffer = http get https://threatfox.abuse.ch/export/json/urls/recent/ | values
+    mut data_array = []
     if $dtype == "all" {
         for data in ($buffer) {
-            print $"(ansi blue_bold)($data.ioc_value)(ansi white) | ($data.threat_type) | (ansi purple_bold)($data.malware)(ansi white) | ($data.malware_printable) | (ansi green_bold)($data.tags)(ansi white) | ($data.reference)"
+            $data_array ++= [{
+                "ioc": $data.ioc_value.0, 
+                "threat_type": $data.threat_type.0, 
+                "malware": $data.malware.0, 
+                "malware_printable": $data.malware_printable.0, 
+                "tags": $data.tags, 
+                "reference": $data.reference
+            }]
         }
+        $data_array | table
     } else if $dtype == "url" {
         for data in ($buffer) {
-            print $"($data | get 0 | get ioc_value | to text)"
+            $data_array ++= [($data | get 0 | get ioc_value | to text)]
         }
+        $data_array
     } else {
         "You must use: --dtype all/url"
     }
@@ -217,6 +227,22 @@ def ff [target_file: string] {
         fdfind -H --glob -t f $target_file / | lines
     } else {
         print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi red_bold) fd-find not found installing it automatically!(ansi reset)"
-        sudo apt install fd-find
+        aget fd-find
+    }
+}
+
+# List active and inactive services
+def serv [] {
+    let services = (ls /etc/init.d/ | get name) 
+    $services | each { |serv_path|
+        let serv_name = ($serv_path | path basename | str trim)
+        let status_output = (try { systemctl is-active $serv_name } catch { 'unknown' })
+        if ($status_output == "active") {
+            let status = $"(ansi green_bold)active(ansi reset)"
+            { service: $serv_name, status: $status }
+        } else {
+            let status = $"(ansi red_bold)inactive(ansi reset)"
+            { service: $serv_name, status: $status }
+        }
     }
 }
