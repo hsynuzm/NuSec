@@ -246,3 +246,8 @@ def serv [] {
         }
     }
 }
+
+# List disk partitions (lsblk with style!)
+def dls [] {
+    lsblk -r | lines | split column " " | skip 1 |select column1 column2 column3 column4 column5 column6 column7 | rename NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
+}
