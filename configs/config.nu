@@ -251,3 +251,11 @@ def serv [] {
 def dls [] {
     lsblk -r | lines | split column " " | skip 1 |select column1 column2 column3 column4 column5 column6 column7 | rename NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINTS
 }
+
+# Format/fix USB or USB like devices
+def fixu [target_disk: string] {
+    print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Formatting: (ansi green_bold)($target_disk)(ansi reset)"
+    sudo wipefs --all $target_disk
+    sudo mkfs.vfat -F 32 $target_disk
+    print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi green_bold) ($target_disk)(ansi reset) formatted successfully!"
+}
