@@ -25,7 +25,7 @@ $env.config.show_banner = false
 
 # Add go path
 if (($env.PATH | to text | str contains "/go/bin") == false) {
-    let go_usr_path = $"/home/($env.USER)/go/bin"
+    let go_usr_path = $"($env.HOME)/go/bin"
     $env.PATH ++= [$go_usr_path]
     $env.PATH ++= ["/usr/local/go/bin"]
 }
@@ -54,8 +54,8 @@ def checkip [ipaddr: string] {
 
 # Start HTTPSERVER
 def hs [--path: string] {
-    let abs_path = ($path | str trim)
     if $path != null {
+        let abs_path = ($path | str trim)
         python3 -m http.server -d $abs_path
     } else {
         python3 -m http.server 
@@ -154,7 +154,7 @@ def tfox [--dtype: string] {
 
 # Perform httpx scan against list of urls
 def hx [listfile: string] {
-    if (($"/home/($env.USER)/go/bin/httpx" | path exists) == false) {
+    if (($"($env.HOME)/go/bin/httpx" | path exists) == false) {
         go install -v github.com/projectdiscovery/httpx/cmd/httpx@latest
     } else {
         httpx -l $listfile -silent -td -title -sc
@@ -188,7 +188,7 @@ def bdc [pattern: string] {
 
 # Hunt possible C2 domains using hednsextractor
 def hdns [target_domain: string] {
-    if (($"/home/($env.USER)/go/bin/hednsextractor" | path exists) == false) {
+    if (($"($env.HOME)/go/bin/hednsextractor" | path exists) == false) {
         go install -v github.com/HuntDownProject/hednsextractor/cmd/hednsextractor@latest
     } else {
         echo $target_domain | hednsextractor -silent -only-domains
