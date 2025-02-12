@@ -287,3 +287,30 @@ def fixu [target_disk: string] {
     sudo mkfs.vfat -F 32 $target_disk
     print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi green_bold) ($target_disk)(ansi reset) formatted successfully!"
 }
+
+# Perform YARA scan against the given file
+def yrs [target_file: string] {
+    # Check rules first!
+    if (($"($env.HOME)/rules" | path exists) == true ) {
+        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Performing YARA scan against: (ansi green_bold)($target_file)(ansi reset) Please wait!"
+        let rule_arr = (glob $"($env.HOME)/rules/**")
+        mut matched_rules = []
+        for rul in ($rule_arr) {
+            if (($rul | str contains ".yar") == true) {
+                try {
+                    let rulz = (yara -w $rul $target_file err> /dev/null | str replace --all $target_file "")
+                    for rr in ($rulz) {
+                        if (($matched_rules | to text | str contains $rr) == false) {
+                            $matched_rules ++= [$rr]
+                        }
+                    }
+                } catch {}
+            }
+        }
+        $matched_rules | split row "\n" | uniq | table
+    } else {
+        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Downloading latest YARA rules from: (ansi green_bold)https://github.com/Yara-Rules/rules(ansi reset)"
+        git clone https://github.com/Yara-Rules/rules $"($env.HOME)/rules"
+        print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Download complete. (ansi yellow_bold)You must re-execute the command!"
+    }
+}
