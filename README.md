@@ -1,2 +1,2 @@
 # NuShell
-Nushell configs, scripts etc.
+Nushell configs, scripts for security researchers
