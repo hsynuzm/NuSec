@@ -314,3 +314,19 @@ def yrs [target_file: string] {
         print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Download complete. (ansi yellow_bold)You must re-execute the command!"
     }
 }
+
+# Fetch latest ransomware victims by country code
+def rware [country_code: string] {
+    let data = (http get $"https://api.ransomware.live/v2/countryvictims/($country_code)" | to json | from json)
+    mut json_array = []
+    for d in ($data) {
+        $json_array ++= [{
+            "post_title": $d.post_title, 
+            "published": $d.published,
+            "group_name": $d.group_name,
+            "website": $d.website,
+            "post_url": $d.post_url
+        }]
+    }
+    $json_array
+}
