@@ -20,7 +20,7 @@
 # Start with neofetch
 neofetch
 
-$env.config.buffer_editor = "code" # Can be anything for ex. (nvim, nano, ...)
+$env.config.buffer_editor = "vim" # Can be anything for ex. (nvim, nano, ...)
 $env.config.show_banner = false
 
 # Add go path
@@ -225,7 +225,7 @@ def hdns [target_domain: string] {
 
 # Get latest config.nu from repository
 def upc [] {
-    http get https://raw.githubusercontent.com/CYB3RMX/NuShell/refs/heads/main/configs/config.nu | save -f $nu.config-path
+    http get https://raw.githubusercontent.com/CYB3RMX/NuSecurity/refs/heads/main/configs/config.nu | save -f $nu.config-path
     print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Config updated successfully!"
     nu # Restart shell
 }
@@ -329,4 +329,22 @@ def rware [country_code: string] {
         }]
     }
     $json_array
+}
+
+# Fetch latest proxy list
+def pls [] {
+    let pdata = (http get https://raw.githubusercontent.com/themiralay/Proxy-List-World/refs/heads/master/data-with-geolocation.json | to json | from json)
+    mut p_array = []
+    for d in ($pdata) {
+        $p_array ++= [{
+            "ip": $d.ip,
+            "port": $d.port,
+            "country": $d.geolocation.country,
+            "country_code": $d.geolocation.countryCode,
+            "isp": $d.geolocation.isp,
+            "org": $d.geolocation.org,
+            "as": $d.geolocation.as
+        }]
+    }
+    $p_array
 }
