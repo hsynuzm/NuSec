@@ -87,7 +87,7 @@ def arem [target_package: string] {
     sudo apt remove $target_package
 }
 
-# List connections and listening ports (--list or -l)
+# List connections and listening ports
 def netcon [--list (-l)] {
     let has_plugin = (plugin list | get filename | to text | str contains "nu_plugin_port_list")
 
