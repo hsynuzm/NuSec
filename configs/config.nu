@@ -28,9 +28,12 @@ def left_prompt [] {
 $env.PROMPT_COMMAND = { left_prompt }
 $env.PROMPT_INDICATOR = $"(ansi blue_bold)>> "
 
-# Gather information about the target IP address
-def checkip [ipaddr: string] {
-    http get http://ipinfo.io/($ipaddr)/json
+# Get information about the target IP address using bgpview
+def chkbgp [ipaddr: string] {
+    let data = (http get $"https://api.bgpview.io/ip/($ipaddr)")
+    if $data.status == "ok" {
+        $data.data
+    }
 }
 
 # Start HTTPSERVER
@@ -330,7 +333,7 @@ def pls [] {
     $p_array
 }
 
-# Enumerate subdomains using crt.sh
+# Enumerate subdomains using crt.sh (faster than shx command but no httpx!)
 def crt [target_domain: string] {
     let resp = (http get $"https://crt.sh/?q=%25.($target_domain)&output=json")
     mut r_array = []

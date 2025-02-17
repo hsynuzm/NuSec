@@ -2,7 +2,7 @@
 Nushell configs & scripts for security researchers.
 
 # Available Commands
-![commands](https://github.com/user-attachments/assets/4ba37bb2-832b-4cfd-ac8c-3b8081f2d8fe)
+![commands](https://github.com/user-attachments/assets/588e9973-3f7c-4ef0-9d4f-72641716769e)
 
 # Setup
 You can simply execute the following command from your Nushell command line.
