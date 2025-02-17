@@ -87,28 +87,16 @@ def arem [target_package: string] {
     sudo apt remove $target_package
 }
 
+# List connections and listening ports (--list or -l)
+def netcon [--list (-l)] {
+    let has_plugin = (plugin list | get filename | to text | str contains "nu_plugin_port_list")
 
-# List listening ports
-def lp [] {
-    if ((plugin list | get filename | to text | str contains "nu_plugin_port_list") == true) {
-        portlist -p -l -4 -t
-    } else {
-        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Looks like you have a missing plugin! Installing it for you..."
-        git clone https://github.com/hsynuzm/nu_plugin_port_list
-        cd nu_plugin_port_list
-        cargo build -r
-        cp target/release/nu_plugin_port_list $"($env.HOME)/.cargo/bin"
-        plugin add $"($env.HOME)/.cargo/bin/nu_plugin_port_list"
-        cd ..
-        rm -rf nu_plugin_port_list
-        print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Installation completed. (ansi yellow_bold)You must restart nushell!"
-    }
-}
-
-# List connections
-def lc [] {
-    if ((plugin list | get filename | to text | str contains "nu_plugin_port_list") == true) {
-        portlist -p -4 -t
+    if $has_plugin {
+        if $list {
+            portlist -p -l -4 -t
+        } else {
+            portlist -p -4 -t
+        }
     } else {
         print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Looks like you have a missing plugin! Installing it for you..."
         git clone https://github.com/hsynuzm/nu_plugin_port_list
