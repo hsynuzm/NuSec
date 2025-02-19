@@ -1,6 +1,7 @@
+# Start with neofetch
+neofetch
 
-
-$env.config.buffer_editor = "code" # Can be anything for ex. (nvim, nano, ...)
+$env.config.buffer_editor = "vim" # Can be anything for ex. (nvim, nano, ...)
 $env.config.show_banner = false
 
 # Add go path
@@ -203,14 +204,12 @@ def arpt [] {
 
 # Search for target file in the system
 def ff [target_file: string] {
-    let has_fd = not (which fdfind | is-empty)
-    if $has_fd {
+    let command_state = (which fdfind)
+    if ($command_state | to text | str contains "/usr/bin/fdfind") {
         fdfind -H --glob -t f $target_file / | lines
     } else {
-        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi red_bold) fd-find not found, installing it automatically!(ansi reset)"
-        apt-get install -y fd-find
-        print "Installation complete. Running the search now..."
-        fdfind -H --glob -t f $target_file / | lines
+        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi red_bold) fd-find not found installing it automatically!(ansi reset)"
+        aget fd-find
     }
 }
 
@@ -315,4 +314,3 @@ def crt [target_domain: string] {
     }
     $r_array | uniq
 }
-
