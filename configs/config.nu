@@ -88,26 +88,8 @@ def arem [target_package: string] {
 }
 
 # List connections and listening ports
-def netcon [--list (-l)] {
-    let has_plugin = (plugin list | get filename | to text | str contains "nu_plugin_port_list")
-
-    if $has_plugin {
-        if $list {
-            portlist -p -l -4 -t
-        } else {
-            portlist -p -4 -t
-        }
-    } else {
-        print $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Looks like you have a missing plugin! Installing it for you..."
-        git clone https://github.com/hsynuzm/nu_plugin_port_list
-        cd nu_plugin_port_list
-        cargo build -r
-        cp target/release/nu_plugin_port_list $"($env.HOME)/.cargo/bin"
-        plugin add $"($env.HOME)/.cargo/bin/nu_plugin_port_list"
-        cd ..
-        rm -rf nu_plugin_port_list
-        print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Installation completed. (ansi yellow_bold)You must restart nushell!"
-    }
+def netcon [] {
+    lsof -i4 -V -E -R | awk '$1 ~ /:*(-|$)/{ gsub(/:[^-]*/, "", $1); print $1,$2,$3,$4,$9,$10,$11 }' | to text | lines | split column " " | rename COMMAND PID PPID USER PROTO CONNECTION STATUS | skip 1
 }
 
 # Fetch last 50 C2 panel from Viriback
