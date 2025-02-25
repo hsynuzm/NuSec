@@ -314,3 +314,33 @@ def crt [target_domain: string] {
     }
     $r_array | uniq
 }
+
+# Perform reverse IP lookup
+def rip [target_ipaddr: string] {
+    let chck = ($"($env.HOME)/.whoisxmlkey.txt" | path exists)
+    if ($chck == true) {
+        let api_key = (cat $"($env.HOME)/.whoisxmlkey.txt" | str trim)
+        let response = (http get $"https://reverse-ip.whoisxmlapi.com/api/v1?apiKey=($api_key)&ip=($target_ipaddr)" | get result)
+        $response
+    } else {
+        let apikey = input $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Enter your WHOISXMLAPI key: "
+        echo $apikey | save -f $"($env.HOME)/.whoisxmlkey.txt"
+        print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Key saved. You should re-execute the (ansi green_bold)rip(ansi reset) command!"
+    }
+}
+
+# Perform DNS Chronicle lookup
+def dchr [target_domain: string] {
+    let chck = ($"($env.HOME)/.whoisxmlkey.txt" | path exists)
+    if ($chck == true) {
+        let api_key = (cat $"($env.HOME)/.whoisxmlkey.txt" | str trim)
+        let response = (http post --content-type application/json  https://dns-history.whoisxmlapi.com/api/v1 {"apiKey": $api_key, "searchType": "forward", "recordType": "a", "domainName": $target_domain} | get result)
+        if (($response | get count) > 0) {
+            $response | get records
+        }
+    } else {
+        let apikey = input $"(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Enter your WHOISXMLAPI key: "
+        echo $apikey | save -f $"($env.HOME)/.whoisxmlkey.txt"
+        print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Key saved. You should re-execute the (ansi green_bold)dchr(ansi reset) command!"
+    }
+}
