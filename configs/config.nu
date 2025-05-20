@@ -40,15 +40,15 @@ def chkbgp [ipaddr: string] {
 def hs [--path: string] {
     if $path != null {
         let abs_path = ($path | str trim)
-        python3 -m http.server -d $abs_path
+        python -m http.server -d $abs_path
     } else {
-        python3 -m http.server 
+        python -m http.server
     }
 }
 
 # Output with syntax highlighting
 def catt [targetfile: string] {
-    python3 -m rich.syntax $targetfile
+    python -m rich.syntax $targetfile
 }
 
 # Get Ifaces
@@ -152,10 +152,10 @@ def pdsc [tool_name: string] {
 # Get user defined commands/aliases
 def hlp [--verbose (-v)] {
     if ($verbose) {
-        help commands | where category =~ "default" | select name description params
+        help commands | where command_type =~ "custom" | select name description params
     } else {
-        help commands | where category =~ "default" | select name description
-    }    
+        help commands | where command_type =~ "custom" | select name description
+    }
 }
 
 # Enumerate subdomains using subfinder/httpx combination
@@ -343,4 +343,9 @@ def dchr [target_domain: string] {
         echo $apikey | save -f $"($env.HOME)/.whoisxmlkey.txt"
         print $"\n(ansi cyan_bold)[(ansi red_bold)+(ansi cyan_bold)](ansi reset) Key saved. You should re-execute the (ansi green_bold)dchr(ansi reset) command!"
     }
+}
+
+# Fetch file names from target open directory
+def gf [target_url: string] {
+    http get $target_url | lines | parse --regex 'href="([^"]+)"' | rename Files
 }
