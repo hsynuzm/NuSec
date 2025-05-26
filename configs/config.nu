@@ -349,3 +349,10 @@ def dchr [target_domain: string] {
 def gf [target_url: string] {
     http get $target_url | lines | parse --regex 'href="([^"]+)"' | rename Files
 }
+
+# Triage IoC query
+def triage [target_query: string] {
+    let d1 = (http get $"https://tria.ge/s?q=($target_query)" | parse --regex "<div class="column-target"[^>]*>(.*?)</div>" | get capture0)
+    let d2 = (http get $"https://tria.ge/s?q=($target_query)" | parse --regex 'data-sample-id="(.*?)"' | get capture0)
+    $d1 | zip $d2 | each { |row| { name: $row.0, hash: $row.1 } } | rename FileName ReportID
+}
