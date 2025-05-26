@@ -352,7 +352,21 @@ def gf [target_url: string] {
 
 # Triage IoC query
 def triage [target_query: string] {
-    let d1 = (http get $"https://tria.ge/s?q=($target_query)" | parse --regex "<div class="column-target"[^>]*>(.*?)</div>" | get capture0)
-    let d2 = (http get $"https://tria.ge/s?q=($target_query)" | parse --regex 'data-sample-id="(.*?)"' | get capture0)
-    $d1 | zip $d2 | each { |row| { name: $row.0, hash: $row.1 } } | rename FileName ReportID
+    let url = $"https://tria.ge/s?q=($target_query)"
+
+    let d1 = (http get $url | parse --regex '<div class="column-target"[^>]*>(.*?)</div>' | get capture0)
+    let d2 = (http get $url | parse --regex 'data-sample-id="(.*?)"' | get capture0)
+    let d3 = (http get $url | parse --regex '<div class="score"[^>]*>(.*?)</div>' | get capture0)
+
+    let zipped1 = $d1 | zip $d2
+    let zipped2 = $zipped1 | zip $d3
+
+    $zipped2 | each { |row|
+        {
+            FileName: $row.0.0,
+            ReportID: $row.0.1,
+            Score: $row.1
+        }
+    }
 }
+
