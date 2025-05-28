@@ -351,22 +351,33 @@ def gf [target_url: string] {
 }
 
 # Triage IoC query
-def triage [target_query: string] {
-    let url = $"https://tria.ge/s?q=($target_query)"
+def triage [
+    --family: string    # For ex: snakekeylogger
+    --query: string     # For ex: domain, hash etc.
+] {
+    let base_url = if ($family != null) {
+        $"https://tria.ge/s/family:($family)"
+    } else if ($query != null) {
+        $"https://tria.ge/s?q=($query)"
+    } else {
+        error make { msg: "You must provide either --family or --query" }
+    }
 
-    let d1 = (http get $url | parse --regex '<div class="column-target"[^>]*>(.*?)</div>' | get capture0)
-    let d2 = (http get $url | parse --regex 'data-sample-id="(.*?)"' | get capture0)
-    let d3 = (http get $url | parse --regex '<div class="score"[^>]*>(.*?)</div>' | get capture0)
+    let html = http get $base_url
+    let names = $html | parse --regex '<div class="column-target"[^>]*>(.*?)</div>' | get capture0
+    let ids   = $html | parse --regex 'data-sample-id="(.*?)"' | get capture0
+    let scores = $html | parse --regex '<div class="score"[^>]*>(.*?)</div>' | get capture0
 
-    let zipped1 = $d1 | zip $d2
-    let zipped2 = $zipped1 | zip $d3
+    let zipped1 = $names | zip $ids
+    let zipped2 = $zipped1 | zip $scores
 
     $zipped2 | each { |row|
         {
-            FileName: $row.0.0,
-            ReportID: $row.0.1,
+            FileName: $row.0.0
+            ReportID: $row.0.1
             Score: $row.1
         }
     }
 }
+
 
